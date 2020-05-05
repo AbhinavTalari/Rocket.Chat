@@ -1,17 +1,15 @@
 import { useCallback } from 'react';
 
-import { useEndpoint, useUpload } from '../contexts/ServerContext';
+import { useEndpoint } from '../contexts/ServerContext';
 import { useToastMessageDispatch } from '../contexts/ToastMessagesContext';
 
 export const useEndpointAction = (httpMethod, endpoint, params = {}, successMessage) => {
-	const sendData = httpMethod !== 'UPLOAD' ? useEndpoint(httpMethod, endpoint) : useUpload(endpoint);
+	const sendData = useEndpoint(httpMethod, endpoint);
 	const dispatchToastMessage = useToastMessageDispatch();
 
 	return useCallback(async (...args) => {
 		try {
-			let data = sendData(params, ...args);
-
-			data = data.promise ? await data.promise : await data;
+			const data = await sendData(params, ...args);
 
 			if (!data.success) {
 				throw new Error(data.status);
